@@ -20,17 +20,32 @@ const fetchAndParsePage = async (url) => {
       let nextElement = $(element).next();
       while (nextElement.length && !nextElement.is("h2, h3, h4")) {
         const tag = nextElement.prop("tagName").toLowerCase();
+
+        const processLinks = (el) => {
+          const clone = el.clone();
+          clone.find("a").each((i, a) => {
+            const href = $(a).attr("href");
+            const text = $(a).text().trim();
+            if (href) {
+              const absoluteHref = new URL(href, "https://www.greenriver.edu").href;
+              $(a).replaceWith(`[${absoluteHref}][${text}]`);
+            }
+          });
+          return clone.text().trim();
+        };
+
         if (tag === "p") {
-          content += "\n" + nextElement.text().trim() + "\n";
+          content += "\n" + processLinks(nextElement) + "\n";
         } else if (tag === "ul" || tag === "ol") {
           nextElement.find("li").each((j, li) => {
-            content += "- " + $(li).text().trim() + "\n";
+            content += "- " + processLinks($(li)) + "\n";
           });
         } else if (tag === "div" || tag === "span") {
-          content += "\n" + nextElement.text().trim() + "\n";
+          content += "\n" + processLinks(nextElement) + "\n";
         } else {
-          content += nextElement.text().trim() + " ";
+          content += processLinks(nextElement) + " ";
         }
+
         nextElement = nextElement.next();
       }
 
