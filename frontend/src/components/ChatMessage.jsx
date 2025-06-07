@@ -1,7 +1,7 @@
 const ChatMessage = ({ chat }) => {
     return (
-        <div className={`message ${chat.role === "model" ? 'bot' : 'user'}-message`}>
-            <p className="message-text">{chat.text}</p>
+        <div className={`message ${chat.role === "system" ? 'bot' : 'user'}-message`}>
+             <p className="message-content" dangerouslySetInnerHTML={{ __html: chat.content }}/>
         </div>
     )
 }

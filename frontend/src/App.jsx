@@ -1,101 +1,33 @@
-import { useEffect, useState, useRef } from "react";
-import ChatForm from "./components/ChatForm";
-import GreenRiverIcon from "./components/GreenRiverIcon";
-import ChatMessage from "./components/ChatMessage";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import NavBar from "./components/admin-components/NavBar";
+import AdminPage from "./pages/admin-pages/AdminPage";
+import Form from "./pages/admin-pages/Form";
+import LinksForm from "./pages/admin-pages/LinksForm";
+import CreateUserForm from "./pages/admin-pages/CreateUserForm";
+import SignupPage from "./components/SignupPage";
+import LoginPage from "./components/LoginPage";
+import ChatbotPage from "./pages/ChatbotPage";
 
-/**
- * Main application component for the Advising Chatbot.
- * Handles user interactions and displays chat history.
- * @returns {JSX.Element} The rendered application component.
- */
-const App = () => {
-  const [chatHistory, setChatHistory] = useState([]);
-  const chatBodyRef = useRef();
-  const fetchURL = import.meta.env.VITE_FETCH_URL;
-
-  /**
-   * Sends the latest user message to the server and updates chat history with the bot's response.
-   * @param {Array} history - The current chat history.
-   */
-  const generateBotResponse = async (history) => {
-    const lastMessage = history[history.length - 1];
-  
-    try {
-      const response = await fetch(fetchURL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: lastMessage.text }),
-      });
-  
-      const data = await response.json();
-  
-      setChatHistory((prevHistory) => [
-        ...prevHistory,
-        { role: "model", text: data.response },
-      ]);
-    } catch (error) {
-      console.error("Error fetching bot response:", error);
-    }
-  };  
-
-  /**
-   * Scrolls the chat window to the latest message whenever the chat history updates.
-   */
-  useEffect(() => {
-    chatBodyRef.current.scrollTo({top: chatBodyRef.current.scrollHeight, behavior: "smooth"});
-  }, [chatHistory]);
-
+export default function App() {
   return (
-    <div>
-      <div className="container-left">
-        <h1>Welcome to the Advising Chatbot!</h1>
-        <br />
-        <p>
-          We are here to help with anything related to the <strong>nursing
-          program</strong> and <strong>advising</strong>. Feel free to ask
-          anything, and we will do our best to provide the answers you need:
-        </p>
+    <BrowserRouter>
+      <Routes>
+        {/* Home page */}
+        <Route index element={<ChatbotPage />} />
 
-        <ul>
-          <li>
-            <strong>About the nursing program</strong> – If you have questions
-            about admissions, courses, or requirements, just ask!
-          </li>
-          <li>
-            <strong>Advising</strong> – Need help with course planning, schedules, or academic advice? We’ve got you covered.
-          </li>
-        </ul>
-      </div>
-      <div className="container-right">
-        <div className="chatbot-popup">
-          {/* ChatBot Header */}
-          <div className="chat-header">
-            <div className="header-info">
-              <GreenRiverIcon />
-              <h2 className="logo-text">Advising Assistant</h2>
-            </div>
-            <button className="material-symbols-outlined">arrow_drop_down</button>
-          </div>
-
-          {/* ChatBot Body */}
-          <div ref={chatBodyRef} className="chat-body">
-            {chatHistory.map((chat, index) => (
-              <ChatMessage key={index} chat={chat} />
-            ))}
-          </div>
-
-          {/* ChatBot Footer */}
-          <div className="chat-footer">
-            <ChatForm
-              chatHistory={chatHistory}
-              setChatHistory={setChatHistory}
-              generateBotResponse={generateBotResponse}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+        {/* Admin Page */}
+        <Route path="admin" element={<NavBar />}>
+          <Route index element={<AdminPage />} />
+          <Route path="form" element={<Form />} />
+        
+          <Route path="form/input" element={<Form />} />
+          <Route path="form/links" element={<LinksForm />} />
+          <Route path="form/create-user" element={<CreateUserForm />} />
+        </Route>
+        
+        <Route path="signup" element={<SignupPage />} />
+        <Route path="login" element={<LoginPage />} />
+      </Routes>
+    </BrowserRouter>
   );
-};
-
-export default App;
+}
